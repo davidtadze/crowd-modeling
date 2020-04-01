@@ -1,9 +1,9 @@
 class Color:
 
     def __init__(self, r=0, g=0, b=0):
-        self._r = r  # Red component
-        self._g = g  # Green component
-        self._b = b  # Blue component
+        self._r = r
+        self._g = g
+        self._b = b
 
     #-------------------------------------------------------------------
 
@@ -23,7 +23,6 @@ class Color:
             str(self._b) + ')'
 
 #-----------------------------------------------------------------------
-# Some predefined Color objects:
 
 WHITE      = Color(255, 255, 255)
 BLACK      = Color(  0,   0,   0)

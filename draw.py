@@ -68,11 +68,6 @@ def _factorY(h):
     return h * _canvasHeight / abs(_ymax - _ymin)
 
 def setCanvasSize(w=_DEFAULT_CANVAS_SIZE, h=_DEFAULT_CANVAS_SIZE):
-    """
-    Set the size of the canvas to w pixels wide and h pixels high.
-    Calling this function is optional. If you call it, you must do
-    so before calling any drawing function.
-    """
     global _background
     global _surface
     global _canvasWidth
@@ -80,7 +75,7 @@ def setCanvasSize(w=_DEFAULT_CANVAS_SIZE, h=_DEFAULT_CANVAS_SIZE):
     global _windowCreated
 
     if _windowCreated:
-        raise Exception('The stddraw window already was created')
+        raise Exception('The draw window already was created')
 
     if (w < 1) or (h < 1):
         raise Exception('width and height must be positive')
@@ -93,10 +88,6 @@ def setCanvasSize(w=_DEFAULT_CANVAS_SIZE, h=_DEFAULT_CANVAS_SIZE):
     _windowCreated = True
 
 def setXscale(min=_DEFAULT_XMIN, max=_DEFAULT_XMAX):
-    """
-    Set the x-scale of the canvas such that the minimum x value
-    is min and the maximum x value is max.
-    """
     global _xmin
     global _xmax
     min = float(min)
@@ -154,26 +145,47 @@ def circle(x, y, r, color=BLACK):
         pygame.draw.ellipse(
             _surface,
             _pygameColor(color),
-            pygame.Rect(xs-ws/2.0, ys-hs/2.0, ws, hs), 1)
+            pygame.Rect(xs-ws/2.0, ys-hs/2.0, ws, hs), 
+            1)
 
 def filledCircle(x, y, r, color=BLACK):
     _makeSureWindowCreated()
     x = float(x)
     y = float(y)
     r = float(r)
+
+    # print("min_x = {}".format(_xmin))
+    # print("x = {}".format(x))
+    # print("min_x = {}".format(_xmax))
+
+    # print("min_y = {}".format(_ymin))
+    # print("y = {}".format(y))
+    # print("min_x = {}".format(_ymax))
+    
+    # print("r = {}".format(r))
+
     ws = _factorX(2.0*r)
     hs = _factorY(2.0*r)
-    # If the radius is too small, then simply draw a pixel.
+
+    # print("WIDTH = {}".format(_canvasWidth))
+    # print("width_s = {}".format(ws))
+    # print("HEIGHT = {}".format(_canvasHeight))
+    # print("height_s = {}".format(hs))
+    
     if (ws <= 1.0) and (hs <= 1.0):
         _pixel(x, y)
     else:
         xs = _scaleX(x)
         ys = _scaleY(y)
+
+        # print("xs = {}".format(xs))
+        # print("ys = {}".format(ys))
+
         pygame.draw.ellipse(
             _surface,
             _pygameColor(color),
-            pygame.Rect(xs-ws/2.0, ys-hs/2.0, ws, hs),
-            0)
+            pygame.Rect(xs-ws/2.0, ys-hs/2.0, ws, hs), 
+            1)
 
 #-----------------------------------------------------------------------
 
@@ -185,9 +197,20 @@ def save(f):
     _makeSureWindowCreated()
     pygame.image.save(_surface, f)
 
-def show():
+def show(msec):
+    _makeSureWindowCreated()
     _background.blit(_surface, (0, 0))
     pygame.display.flip()
+
+    QUANTUM = .1
+    sec = msec / 1000.0
+    if sec < QUANTUM:
+        time.sleep(sec)
+        return
+    secondsWaited = 0.0
+    while secondsWaited < sec:
+        time.sleep(QUANTUM)
+        secondsWaited += QUANTUM
 
 #-----------------------------------------------------------------------
 
@@ -195,10 +218,10 @@ def _regressionTest():
     clear()
 
     circle(0.5, 0.5, .2)
-    show()
+    show(0.0)
 
     filledCircle(0.5, 0.5, .1)
-    show()
+    show(0.0)
 
     save("/Users/daviddavitadze/Downloads/img.jpg")
 
