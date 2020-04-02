@@ -1,7 +1,7 @@
 import time
 import os
 import sys
-import color
+from util import color
 import string
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'hide'
@@ -10,18 +10,18 @@ import pygame.gfxdraw
 	
 #-----------------------------------------------------------------------
 
-from color import WHITE
-from color import BLACK
-from color import RED
-from color import GREEN
-from color import BLUE
-from color import CYAN
-from color import MAGENTA
-from color import YELLOW
-from color import GRAY
-from color import ORANGE
-from color import VIOLET
-from color import PINK
+from util.color import WHITE
+from util.color import BLACK
+from util.color import RED
+from util.color import GREEN
+from util.color import BLUE
+from util.color import CYAN
+from util.color import MAGENTA
+from util.color import YELLOW
+from util.color import GRAY
+from util.color import ORANGE
+from util.color import VIOLET
+from util.color import PINK
 
 #-----------------------------------------------------------------------
 

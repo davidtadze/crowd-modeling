@@ -1,9 +1,9 @@
 import sys
-import array
+from util import array
 import draw
-from body import Body 
-from instream import InStream
-from vector import Vector
+from body import Body
+from util.instream import InStream
+from util.vector import Vector
 import time
 
 #-----------------------------------------------------------------------
