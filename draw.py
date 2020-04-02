@@ -80,6 +80,8 @@ def setCanvasSize(w=_DEFAULT_CANVAS_SIZE, h=_DEFAULT_CANVAS_SIZE):
     if (w < 1) or (h < 1):
         raise Exception('width and height must be positive')
 
+    pygame.init()
+
     _canvasWidth = w
     _canvasHeight = h
     _background = pygame.display.set_mode([w, h])
@@ -117,6 +119,13 @@ def _makeSureWindowCreated():
         setCanvasSize()
         _windowCreated = True
 
+def _checkForEvents():
+    _makeSureWindowCreated()
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit()
+
 #-----------------------------------------------------------------------
 
 def _pixel(x, y, color=BLACK):
@@ -136,7 +145,6 @@ def circle(x, y, r, color=BLACK):
     r = float(r)
     ws = _factorX(2.0*r)
     hs = _factorY(2.0*r)
-    # If the radius is too small, then simply draw a pixel.
     if (ws <= 1.0) and (hs <= 1.0):
         _pixel(x, y)
     else:
@@ -153,34 +161,13 @@ def filledCircle(x, y, r, color=BLACK):
     x = float(x)
     y = float(y)
     r = float(r)
-
-    # print("min_x = {}".format(_xmin))
-    # print("x = {}".format(x))
-    # print("min_x = {}".format(_xmax))
-
-    # print("min_y = {}".format(_ymin))
-    # print("y = {}".format(y))
-    # print("min_x = {}".format(_ymax))
-    
-    # print("r = {}".format(r))
-
     ws = _factorX(2.0*r)
     hs = _factorY(2.0*r)
-
-    # print("WIDTH = {}".format(_canvasWidth))
-    # print("width_s = {}".format(ws))
-    # print("HEIGHT = {}".format(_canvasHeight))
-    # print("height_s = {}".format(hs))
-    
     if (ws <= 1.0) and (hs <= 1.0):
         _pixel(x, y)
     else:
         xs = _scaleX(x)
         ys = _scaleY(y)
-
-        # print("xs = {}".format(xs))
-        # print("ys = {}".format(ys))
-
         pygame.draw.ellipse(
             _surface,
             _pygameColor(color),
@@ -201,6 +188,7 @@ def show(msec):
     _makeSureWindowCreated()
     _background.blit(_surface, (0, 0))
     pygame.display.flip()
+    _checkForEvents()
 
     QUANTUM = .1
     sec = msec / 1000.0
@@ -211,6 +199,7 @@ def show(msec):
     while secondsWaited < sec:
         time.sleep(QUANTUM)
         secondsWaited += QUANTUM
+        _checkForEvents()
 
 #-----------------------------------------------------------------------
 

@@ -14,6 +14,8 @@ class Universe:
         n = instream.readInt()
         radius = instream.readFloat()
 
+        draw.setCanvasSize()
+
         draw.setXscale(-radius, +radius)
         draw.setYscale(-radius, +radius)
 
@@ -52,19 +54,19 @@ def main():
     filename = sys.argv[1]
     dt = float(sys.argv[2])
     universe = Universe(filename)
-    # while True:
-    #     universe.increaseTime(dt)
-        # draw.clear()
-        # universe.draw()
-        # draw.show(0.0)
-
-    sec = 60
-    secondsWaited = 0.0
-    while secondsWaited < sec:
+    while True:
         universe.increaseTime(dt)
+        draw.clear()
         universe.draw()
-        draw.show(0.0)
-        secondsWaited += dt
+        draw.show(10.0)
+
+    # sec = 60
+    # secondsWaited = 0.0
+    # while secondsWaited < sec:
+    #     universe.increaseTime(dt)
+    #     universe.draw()
+    #     draw.show(0.0)
+    #     secondsWaited += dt
 
     draw.save("/Users/daviddavitadze/Downloads/universe.jpg")
 
@@ -73,4 +75,4 @@ if __name__ == '__main__':
 
 #-----------------------------------------------------------------------
 
-# python universe.py 2body.txt 20000
+# python3 universe.py 2body.txt 0.1
