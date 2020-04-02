@@ -6,6 +6,9 @@ from util.instream import InStream
 from util.vector import Vector
 import time
 
+from physics_system import PhysicsSystem
+from rendering_system import RenderingSystem
+
 #-----------------------------------------------------------------------
 
 class Universe:
@@ -28,36 +31,22 @@ class Universe:
             mass = instream.readFloat()
             r = Vector([rx, ry])
             v = Vector([vx, vy])
-            self._bodies[i] = Body(r, v, mass)
-    
-    def increaseTime(self, dt):
-        n = len(self._bodies)
-        f = array.create1D(n, Vector([0, 0]))
-        
-        for i in range(n):
-            for j in range(n):
-                if i != j:
-                    bodyi = self._bodies[i]
-                    bodyj = self._bodies[j]
-                    f[i] = f[i] + bodyi.forceFrom(bodyj)
-
-        for i in range(n):
-            self._bodies[i].move(f[i], dt)    
-
-    def draw(self):
-        for body in self._bodies:
-            body.draw()
+            self._bodies[i] = Body(r, v, mass)    
 
 #-----------------------------------------------------------------------
 
 def main():
     filename = sys.argv[1]
     dt = float(sys.argv[2])
+
     universe = Universe(filename)
+    physics = PhysicsSystem()
+    rendering = RenderingSystem()
+
     while True:
-        universe.increaseTime(dt)
+        universe._bodies = physics.increaseTime(universe._bodies, dt)
         draw.clear()
-        universe.draw()
+        rendering.render(universe._bodies)
         draw.show(10.0)
 
     # sec = 60
