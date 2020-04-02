@@ -20,4 +20,4 @@ class Body:
         return f
 
     def draw(self):
-        draw.filledCircle(self._r[0], self._r[1], .05)
+        draw.filledCircle(self._r[0], self._r[1], .1)

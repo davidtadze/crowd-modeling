@@ -75,4 +75,4 @@ if __name__ == '__main__':
 
 #-----------------------------------------------------------------------
 
-# python3 universe.py 2body.txt 0.1
+# python3 universe.py 4body.txt 20000
