@@ -1,29 +1,19 @@
 import time
 import os
-import sys
+
 from util import color
-import string
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'hide'
+
 import pygame
 import pygame.gfxdraw
-	
-#-----------------------------------------------------------------------
 
 from util.color import WHITE
 from util.color import BLACK
 from util.color import RED
 from util.color import GREEN
 from util.color import BLUE
-from util.color import CYAN
-from util.color import MAGENTA
-from util.color import YELLOW
 from util.color import GRAY
-from util.color import ORANGE
-from util.color import VIOLET
-from util.color import PINK
-
-#-----------------------------------------------------------------------
 
 _BORDER = 0.0
 _DEFAULT_XMIN = 0.0
@@ -37,158 +27,149 @@ _ymin = None
 _xmax = None
 _ymax = None
 
-_canvasWidth = float(_DEFAULT_CANVAS_SIZE)
-_canvasHeight = float(_DEFAULT_CANVAS_SIZE)
+_canvas_width = float(_DEFAULT_CANVAS_SIZE)
+_canvas_height = float(_DEFAULT_CANVAS_SIZE)
 
 _background = None
 _surface = None
 
-_windowCreated = False
+_window_created = False
 
-#-----------------------------------------------------------------------
-
-def _pygameColor(c):
-    r = c.getRed()
-    g = c.getGreen()
-    b = c.getBlue()
+def _pygame_color(c):
+    r = c._r
+    g = c._g
+    b = c._b
     return pygame.Color(r, g, b)
 
-#-----------------------------------------------------------------------
+def _scale_x(x):
+    return _canvas_width * (x - _xmin) / (_xmax - _xmin)
 
-def _scaleX(x):
-    return _canvasWidth * (x - _xmin) / (_xmax - _xmin)
+def _scale_y(y):
+    return _canvas_height * (_ymax - y) / (_ymax - _ymin)
 
-def _scaleY(y):
-    return _canvasHeight * (_ymax - y) / (_ymax - _ymin)
+def _factor_x(w):
+    return w * _canvas_width / abs(_xmax - _xmin)
 
-def _factorX(w):
-    return w * _canvasWidth / abs(_xmax - _xmin)
+def _factor_y(h):
+    return h * _canvas_height / abs(_ymax - _ymin)
 
-def _factorY(h):
-    return h * _canvasHeight / abs(_ymax - _ymin)
-
-def setCanvasSize(w=_DEFAULT_CANVAS_SIZE, h=_DEFAULT_CANVAS_SIZE):
+def init(w=_DEFAULT_CANVAS_SIZE, h=_DEFAULT_CANVAS_SIZE):
     global _background
     global _surface
-    global _canvasWidth
-    global _canvasHeight
-    global _windowCreated
+    global _canvas_width
+    global _canvas_height
+    global _window_created
 
-    if _windowCreated:
-        raise Exception('The draw window already was created')
-
+    if _window_created:
+        raise Exception('the draw window already was created')
     if (w < 1) or (h < 1):
         raise Exception('width and height must be positive')
 
     pygame.init()
 
-    _canvasWidth = w
-    _canvasHeight = h
-    _background = pygame.display.set_mode([w, h])
-    _surface = pygame.Surface((w, h))
-    _surface.fill(_pygameColor(WHITE))
-    _windowCreated = True
+    _canvas_width = w
+    _canvas_height = h
 
-def setXscale(min=_DEFAULT_XMIN, max=_DEFAULT_XMAX):
+    _background = pygame.display.set_mode((w, h))
+    _surface = pygame.Surface((w, h))
+
+    _window_created = True
+
+def set_x_scale(min=_DEFAULT_XMIN, max=_DEFAULT_XMAX):
     global _xmin
     global _xmax
+
     min = float(min)
     max = float(max)
+
     if min >= max:
         raise Exception('min must be less than max')
+
     size = max - min
     _xmin = min - _BORDER * size
     _xmax = max + _BORDER * size
 
-def setYscale(min=_DEFAULT_YMIN, max=_DEFAULT_YMAX):
+def set_y_scale(min=_DEFAULT_YMIN, max=_DEFAULT_YMAX):
     global _ymin
     global _ymax
+
     min = float(min)
     max = float(max)
+
     if min >= max:
         raise Exception('min must be less than max')
+
     size = max - min
     _ymin = min - _BORDER * size
     _ymax = max + _BORDER * size
 
-#-----------------------------------------------------------------------
+def _make_sure_window_created():
+    global _window_created
+    if not _window_created:
+        init()
+        _window_created = True
 
-def _makeSureWindowCreated():
-    global _windowCreated
-    if not _windowCreated:
-        setCanvasSize()
-        _windowCreated = True
-
-def _checkForEvents():
-    _makeSureWindowCreated()
+def _check_for_events():
+    _make_sure_window_created()
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
 
-#-----------------------------------------------------------------------
-
 def _pixel(x, y, color=BLACK):
-    _makeSureWindowCreated()
-    xs = _scaleX(x)
-    xy = _scaleY(y)
+    _make_sure_window_created()
+
+    xs = _scale_x(x)
+    xy = _scale_y(y)
+
     pygame.gfxdraw.pixel(
         _surface,
         int(round(xs)),
         int(round(xy)),
-        _pygameColor(color))
+        _pygame_color(color)
+    )
 
-def circle(x, y, r, color=BLACK):
-    _makeSureWindowCreated()
+def line(r1, r2, color=BLACK):
+    _make_sure_window_created()
+
+    r1_scaled = (_scale_x(r1[0]), _scale_y(r1[1]))
+    r2_scaled = (_scale_x(r2[0]), _scale_y(r2[1]))
+
+    pygame.draw.line(_surface, _pygame_color(color), r1_scaled, r2_scaled)
+
+def filled_circle(x, y, r, color=BLACK):
+    _make_sure_window_created()
+    
     x = float(x)
     y = float(y)
     r = float(r)
-    ws = _factorX(2.0*r)
-    hs = _factorY(2.0*r)
-    if (ws <= 1.0) and (hs <= 1.0):
+
+    rs = _factor_x(r)
+
+    if (rs <= 1.0):
         _pixel(x, y)
     else:
-        xs = _scaleX(x)
-        ys = _scaleY(y)
-        pygame.draw.ellipse(
-            _surface,
-            _pygameColor(color),
-            pygame.Rect(xs-ws/2.0, ys-hs/2.0, ws, hs), 
-            1)
-
-def filledCircle(x, y, r, color=BLACK):
-    _makeSureWindowCreated()
-    x = float(x)
-    y = float(y)
-    r = float(r)
-    ws = _factorX(2.0*r)
-    hs = _factorY(2.0*r)
-    if (ws <= 1.0) and (hs <= 1.0):
-        _pixel(x, y)
-    else:
-        xs = _scaleX(x)
-        ys = _scaleY(y)
-        pygame.draw.ellipse(
-            _surface,
-            _pygameColor(color),
-            pygame.Rect(xs-ws/2.0, ys-hs/2.0, ws, hs), 
-            1)
-
-#-----------------------------------------------------------------------
+        xs = _scale_x(x)
+        ys = _scale_y(y)
+        pygame.draw.circle(_surface, _pygame_color(color), (xs, ys), rs)
 
 def clear(c=WHITE):
-    _makeSureWindowCreated()
-    _surface.fill(_pygameColor(c))
+    _make_sure_window_created() 
+    
+    _surface.fill(_pygame_color(c))
 
 def save(f):
-    _makeSureWindowCreated()
+    _make_sure_window_created()
+
     pygame.image.save(_surface, f)
 
 def show(msec):
-    _makeSureWindowCreated()
+    _make_sure_window_created()
+
     _background.blit(_surface, (0, 0))
     pygame.display.flip()
-    _checkForEvents()
+
+    _check_for_events()
 
     QUANTUM = .1
     sec = msec / 1000.0
@@ -199,30 +180,7 @@ def show(msec):
     while secondsWaited < sec:
         time.sleep(QUANTUM)
         secondsWaited += QUANTUM
-        _checkForEvents()
+        _check_for_events()
 
-#-----------------------------------------------------------------------
-
-def _regressionTest():
-    clear()
-
-    circle(0.5, 0.5, .2)
-    show(0.0)
-
-    filledCircle(0.5, 0.5, .1)
-    show(0.0)
-
-    save("/Users/daviddavitadze/Downloads/img.jpg")
-
-#-----------------------------------------------------------------------
-
-setXscale()
-setYscale()
-
-#-----------------------------------------------------------------------
-
-def _main():
-    _regressionTest()
-
-if __name__ == '__main__':
-    _main()
+set_x_scale()
+set_y_scale()
